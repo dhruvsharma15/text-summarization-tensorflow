@@ -5,7 +5,7 @@ import argparse
 import pickle
 import os
 from model import Model
-from utils import build_dict, build_dataset, batch_iter
+from utils2 import build_dict, build_dataset, batch_iter
 
 # Uncomment next 2 lines to suppress error and Tensorflow info verbosity. Or change logging levels
 # tf.logging.set_verbosity(tf.logging.FATAL)
@@ -90,6 +90,7 @@ with tf.Session() as sess:
         if step % num_batches_per_epoch == 0:
             hours, rem = divmod(time.perf_counter() - start, 3600)
             minutes, seconds = divmod(rem, 60)
-            saver.save(sess, "./saved_model/model.ckpt", global_step=step)
+            saver.save(sess, "saved_model/model.ckpt", global_step=step)
             print(" Epoch {0}: Model is saved.".format(step // num_batches_per_epoch),
             "Elapsed: {:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds) , "\n")
+        break
