@@ -12,15 +12,15 @@ from utils2 import build_dict, build_dataset, batch_iter
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def add_arguments(parser):
-    parser.add_argument("--num_hidden", type=int, default=150, help="Network size.")
+    parser.add_argument("--num_hidden", type=int, default=300, help="Network size.")
     parser.add_argument("--num_layers", type=int, default=2, help="Network depth.")
     parser.add_argument("--beam_width", type=int, default=10, help="Beam width for beam search decoder.")
     parser.add_argument("--glove", action="store_true", help="Use glove as initial word embedding.")
-    parser.add_argument("--embedding_size", type=int, default=300, help="Word embedding size.")
+    parser.add_argument("--embedding_size", type=int, default=200, help="Word embedding size.")
 
     parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate.")
-    parser.add_argument("--batch_size", type=int, default=64, help="Batch size.")
-    parser.add_argument("--num_epochs", type=int, default=10, help="Number of epochs.")
+    parser.add_argument("--batch_size", type=int, default=32, help="Batch size.")
+    parser.add_argument("--num_epochs", type=int, default=1, help="Number of epochs.")
     parser.add_argument("--keep_prob", type=float, default=0.8, help="Dropout keep prob.")
 
     parser.add_argument("--toy", action="store_true", help="Use only 50K samples of data")

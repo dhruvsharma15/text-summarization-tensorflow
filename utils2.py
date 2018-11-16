@@ -13,12 +13,15 @@ import numpy as np
 from gensim.models.keyedvectors import KeyedVectors
 from gensim.test.utils import get_tmpfile
 from gensim.scripts.glove2word2vec import glove2word2vec
+from glove import Glove
 
 train_data_path = '../BBC News Summary/train/News Articles/'
 train_summary_path = '../BBC News Summary/train/Summaries/'
 
 valid_data_path = '../BBC News Summary/valid/News Articles/'
 valid_summary_path = '../BBC News Summary/valid/Summaries/'
+
+glove_path = '../glove.model'
 
 def read_files(data_path):
     data_folders = os.listdir(data_path)
@@ -46,13 +49,15 @@ def build_dict(step, toy=False):
             for word in word_tokenize(sentence):
                 words.append(word)
 
-        word_counter = collections.Counter(words).most_common()
+#        word_counter = collections.Counter(words).most_common()
+        glove = Glove.load(glove_path)
+        
         word_dict = dict()
         word_dict["<padding>"] = 0
         word_dict["<unk>"] = 1
         word_dict["<s>"] = 2
         word_dict["</s>"] = 3
-        for word, _ in word_counter:
+        for word, _ in glove.dictionary.items():
             word_dict[word] = len(word_dict)
 
         with open("word_dict.pickle", "wb") as f:
@@ -64,8 +69,8 @@ def build_dict(step, toy=False):
 
     reversed_dict = dict(zip(word_dict.values(), word_dict.keys()))
 
-    article_max_len = 500
-    summary_max_len = 150
+    article_max_len = 600
+    summary_max_len = 250
 
     return word_dict, reversed_dict, article_max_len, summary_max_len
 
@@ -108,16 +113,20 @@ def batch_iter(inputs, outputs, batch_size, num_epochs):
 
 
 def get_init_embedding(reversed_dict, embedding_size):
-    glove_file = "glove/glove.42B.300d.txt"
-    word2vec_file = get_tmpfile("word2vec_format.vec")
-    glove2word2vec(glove_file, word2vec_file)
-    print("Loading Glove vectors...")
-    word_vectors = KeyedVectors.load_word2vec_format(word2vec_file)
+    glove_embed = Glove.load(glove_path)    
+    glove_vectors = glove_embed.word_vectors
+    glove_dictionary = glove_embed.dictionary
+    
+#    glove_file = "glove/glove.42B.300d.txt"
+#    word2vec_file = get_tmpfile("word2vec_format.vec")
+#    glove2word2vec(glove_file, word2vec_file)
+#    print("Loading Glove vectors...")
+#    word_vectors = KeyedVectors.load_word2vec_format(word2vec_file)
 
     word_vec_list = list()
-    for _, word in sorted(reversed_dict.items()):
+    for word, ind in sorted(glove_dictionary.items()):
         try:
-            word_vec = word_vectors.word_vec(word)
+            word_vec = glove_vectors[ind]
         except KeyError:
             word_vec = np.zeros([embedding_size], dtype=np.float32)
 
@@ -128,8 +137,3 @@ def get_init_embedding(reversed_dict, embedding_size):
     word_vec_list[3] = np.random.normal(0, 1, embedding_size)
 
     return np.array(word_vec_list)
-
-#word_dict, reversed_dict, article_max_len, summary_max_len = build_dict("train")
-#x, y = build_dataset("train", word_dict, article_max_len, summary_max_len)
-#
-#print(x[0], y[0])
