@@ -15,8 +15,8 @@ from gensim.test.utils import get_tmpfile
 from gensim.scripts.glove2word2vec import glove2word2vec
 from glove import Glove
 
-train_data_path = '../BBC News Summary/train/News Articles/'
-train_summary_path = '../BBC News Summary/train/Summaries/'
+train_data_path = '../arxiv/papers/'
+train_summary_path = '../arxiv/summary/'
 
 valid_data_path = '../BBC News Summary/valid/News Articles/'
 valid_summary_path = '../BBC News Summary/valid/Summaries/'
@@ -43,21 +43,24 @@ def build_dict(step, toy=False):
         summaries = read_files(train_summary_path)
 #        train_article_list = get_text_list(train_article_path, toy)
 #        train_title_list = get_text_list(train_title_path, toy)
-
+        print("files  read")
         words = list()
         for sentence in articles + summaries:
             for word in word_tokenize(sentence):
                 words.append(word)
 
 #        word_counter = collections.Counter(words).most_common()
+        print("loading glove")
         glove = Glove.load(glove_path)
-        
         word_dict = dict()
         word_dict["<padding>"] = 0
         word_dict["<unk>"] = 1
         word_dict["<s>"] = 2
         word_dict["</s>"] = 3
+        print("preparing dict")
         for word, _ in glove.dictionary.items():
+            if(word in word_dict):
+                print (word)
             word_dict[word] = len(word_dict)
 
         with open("word_dict.pickle", "wb") as f:
@@ -137,3 +140,5 @@ def get_init_embedding(reversed_dict, embedding_size):
     word_vec_list[3] = np.random.normal(0, 1, embedding_size)
 
     return np.array(word_vec_list)
+    
+#word_dict, rev_dict, art, summ = build_dict(step="train")
